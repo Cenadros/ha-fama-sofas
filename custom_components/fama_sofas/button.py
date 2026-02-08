@@ -14,6 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import FamaSofasConfigEntry
 from .ble_client import FamaSofaClient
 from .const import (
+    CMD_BOTH_CLOSE,
     CMD_BOTH_OPEN,
     CMD_MOTOR1_CLOSE,
     CMD_MOTOR1_OPEN,
@@ -61,6 +62,11 @@ BUTTON_DESCRIPTIONS: tuple[FamaSofaButtonDescription, ...] = (
         key="both_open",
         translation_key="both_open",
         command=CMD_BOTH_OPEN,
+    ),
+    FamaSofaButtonDescription(
+        key="both_close",
+        translation_key="both_close",
+        command=CMD_BOTH_CLOSE,
     ),
     FamaSofaButtonDescription(
         key="stop",
