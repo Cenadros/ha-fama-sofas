@@ -9,7 +9,7 @@
           "command_duration": "Duracion del comando (segundos)"
         },
         "data_description": {
-          "command_duration": "Cuanto tiempo funciona el motor al pulsar un boton. Pulsa Stop para cancelar."
+          "command_duration": "Cuanto tiempo funciona el motor al pulsar un boton combinado. Pulsa Stop para cancelar."
         }
       },
       "user": {
@@ -19,7 +19,7 @@
           "command_duration": "Duracion del comando (segundos)"
         },
         "data_description": {
-          "command_duration": "Cuanto tiempo funciona el motor al pulsar un boton. Pulsa Stop para cancelar."
+          "command_duration": "Cuanto tiempo funciona el motor al pulsar un boton combinado. Pulsa Stop para cancelar."
         }
       }
     },
@@ -45,8 +45,37 @@
       "both_open": {
         "name": "Ambos motores abrir"
       },
+      "both_close": {
+        "name": "Ambos motores cerrar"
+      },
       "stop": {
         "name": "Parar"
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Iniciar motor",
+      "description": "Envia un comando de motor de forma continua (control gradual). El motor sigue moviendose hasta que se llame al servicio stop o se alcance el timeout de seguridad (120s).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "El dispositivo sofa Fama a controlar."
+        },
+        "command": {
+          "name": "Comando",
+          "description": "El comando de motor a ejecutar."
+        }
+      }
+    },
+    "stop": {
+      "name": "Parar motor",
+      "description": "Detiene el comando de motor actual inmediatamente.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "El dispositivo sofa Fama a detener."
+        }
       }
     }
   }

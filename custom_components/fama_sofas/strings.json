@@ -9,7 +9,7 @@
           "command_duration": "Command duration (seconds)"
         },
         "data_description": {
-          "command_duration": "How long the motor runs when a button is pressed. Press Stop to cancel early."
+          "command_duration": "How long the motor runs when a combined button is pressed. Press Stop to cancel early."
         }
       },
       "user": {
@@ -19,7 +19,7 @@
           "command_duration": "Command duration (seconds)"
         },
         "data_description": {
-          "command_duration": "How long the motor runs when a button is pressed. Press Stop to cancel early."
+          "command_duration": "How long the motor runs when a combined button is pressed. Press Stop to cancel early."
         }
       }
     },
@@ -45,8 +45,37 @@
       "both_open": {
         "name": "Both motors open"
       },
+      "both_close": {
+        "name": "Both motors close"
+      },
       "stop": {
         "name": "Stop"
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Start motor",
+      "description": "Start sending a motor command continuously (gradual control). The motor keeps moving until the stop service is called or the safety timeout (120s) is reached.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The Fama sofa device to control."
+        },
+        "command": {
+          "name": "Command",
+          "description": "The motor command to execute."
+        }
+      }
+    },
+    "stop": {
+      "name": "Stop motor",
+      "description": "Stop the current motor command immediately.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The Fama sofa device to stop."
+        }
       }
     }
   }

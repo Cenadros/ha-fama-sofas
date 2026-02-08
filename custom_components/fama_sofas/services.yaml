@@ -1,0 +1,41 @@
+start:
+  name: Start motor
+  description: >-
+    Start sending a motor command continuously (gradual control).
+    The motor keeps moving until the stop service is called or
+    the safety timeout (120s) is reached.
+  fields:
+    device_id:
+      name: Device
+      description: The Fama sofa device to control.
+      required: true
+      selector:
+        device:
+          integration: fama_sofas
+    command:
+      name: Command
+      description: The motor command to execute.
+      required: true
+      selector:
+        select:
+          options:
+            - label: "Motor 1 open"
+              value: "motor1_open"
+            - label: "Motor 1 close"
+              value: "motor1_close"
+            - label: "Motor 2 open"
+              value: "motor2_open"
+            - label: "Motor 2 close"
+              value: "motor2_close"
+
+stop:
+  name: Stop motor
+  description: Stop the current motor command immediately.
+  fields:
+    device_id:
+      name: Device
+      description: The Fama sofa device to stop.
+      required: true
+      selector:
+        device:
+          integration: fama_sofas

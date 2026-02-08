@@ -16,11 +16,21 @@ CMD_MOTOR1_CLOSE = 0x02
 CMD_MOTOR2_OPEN = 0x03
 CMD_MOTOR2_CLOSE = 0x04
 CMD_BOTH_OPEN = 0x05
+CMD_BOTH_CLOSE = 0x06
 CMD_STOP = 0x07
 
 # Timing
 COMMAND_INTERVAL_SEC = 0.2  # 200ms between repeated commands
 DEFAULT_DURATION_SEC = 60  # Default press duration in seconds
+MAX_CONTINUOUS_DURATION_SEC = 120  # Safety timeout for gradual control
 
 # Config
 CONF_DURATION = "command_duration"
+
+# Gradual control: command name -> command byte mapping (individual motors only)
+GRADUAL_COMMANDS: dict[str, int] = {
+    "motor1_open": CMD_MOTOR1_OPEN,
+    "motor1_close": CMD_MOTOR1_CLOSE,
+    "motor2_open": CMD_MOTOR2_OPEN,
+    "motor2_close": CMD_MOTOR2_CLOSE,
+}
