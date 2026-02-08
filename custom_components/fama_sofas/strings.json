@@ -1,0 +1,53 @@
+{
+  "config": {
+    "flow_title": "Fama Sofa: {name}",
+    "step": {
+      "bluetooth_confirm": {
+        "title": "Confirm setup",
+        "description": "Do you want to set up {name}?",
+        "data": {
+          "command_duration": "Command duration (seconds)"
+        },
+        "data_description": {
+          "command_duration": "How long the motor runs when a button is pressed. Press Stop to cancel early."
+        }
+      },
+      "user": {
+        "title": "Select a Fama Sofa",
+        "data": {
+          "address": "Device",
+          "command_duration": "Command duration (seconds)"
+        },
+        "data_description": {
+          "command_duration": "How long the motor runs when a button is pressed. Press Stop to cancel early."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This sofa is already configured.",
+      "no_devices_found": "No Fama sofas found. Make sure Bluetooth is enabled and the sofa is powered on."
+    }
+  },
+  "entity": {
+    "button": {
+      "motor1_open": {
+        "name": "Motor 1 open"
+      },
+      "motor1_close": {
+        "name": "Motor 1 close"
+      },
+      "motor2_open": {
+        "name": "Motor 2 open"
+      },
+      "motor2_close": {
+        "name": "Motor 2 close"
+      },
+      "both_open": {
+        "name": "Both motors open"
+      },
+      "stop": {
+        "name": "Stop"
+      }
+    }
+  }
+}

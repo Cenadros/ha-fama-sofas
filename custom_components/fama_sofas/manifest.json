@@ -1,0 +1,18 @@
+{
+  "domain": "fama_sofas",
+  "name": "Fama Sofas",
+  "codeowners": ["@Cenadros"],
+  "config_flow": true,
+  "dependencies": ["bluetooth_adapters"],
+  "documentation": "https://github.com/Cenadros/ha-fama-sofas",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Cenadros/ha-fama-sofas/issues",
+  "requirements": ["bleak>=0.21.0"],
+  "version": "1.0.0",
+  "bluetooth": [
+    {
+      "local_name": "Sofa*"
+    }
+  ]
+}
