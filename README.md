@@ -115,10 +115,10 @@ The sofa uses an HM-10 compatible BLE module with the following characteristics:
 
 | Byte | Binary | Action |
 |------|--------|--------|
-| `0x01` | `001` | Motor 1 direction A (open) |
-| `0x02` | `010` | Motor 1 direction B (close) |
-| `0x03` | `011` | Motor 2 direction A (open) |
-| `0x04` | `100` | Motor 2 direction B (close) |
+| `0x01` | `001` | Motor 2 direction A (open) |
+| `0x02` | `010` | Motor 2 direction B (close) |
+| `0x03` | `011` | Motor 1 direction A (open) |
+| `0x04` | `100` | Motor 1 direction B (close) |
 | `0x05` | `101` | Both motors (open) |
 | `0x07` | `111` | Stop / idle |
 
