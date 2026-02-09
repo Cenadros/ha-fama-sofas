@@ -27,10 +27,17 @@ MAX_CONTINUOUS_DURATION_SEC = 120  # Safety timeout for gradual control
 # Config
 CONF_DURATION = "command_duration"
 
-# Gradual control: command name -> command byte mapping (individual motors only)
+# Motor command groups (for channel resolution)
+MOTOR1_COMMANDS = frozenset({CMD_MOTOR1_OPEN, CMD_MOTOR1_CLOSE})
+MOTOR2_COMMANDS = frozenset({CMD_MOTOR2_OPEN, CMD_MOTOR2_CLOSE})
+BOTH_MOTOR_COMMANDS = frozenset({CMD_BOTH_OPEN, CMD_BOTH_CLOSE})
+
+# Gradual control: command name -> command byte mapping
 GRADUAL_COMMANDS: dict[str, int] = {
     "motor1_open": CMD_MOTOR1_OPEN,
     "motor1_close": CMD_MOTOR1_CLOSE,
     "motor2_open": CMD_MOTOR2_OPEN,
     "motor2_close": CMD_MOTOR2_CLOSE,
+    "both_open": CMD_BOTH_OPEN,
+    "both_close": CMD_BOTH_CLOSE,
 }
