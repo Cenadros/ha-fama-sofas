@@ -27,6 +27,10 @@ start:
               value: "motor2_open"
             - label: "Motor 2 close"
               value: "motor2_close"
+            - label: "Both motors open"
+              value: "both_open"
+            - label: "Both motors close"
+              value: "both_close"
 
 stop:
   name: Stop motor
