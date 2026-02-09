@@ -66,7 +66,7 @@ class FamaSofaClient:
         self._hass = hass
         self._address = address
         self._client: BleakClient | None = None
-        self._target_char: BleakGATTCharacteristic | None = None
+        self._target_chars: list[BleakGATTCharacteristic] = []
         self._command_tasks: dict[str, asyncio.Task] = {}
         self._lock = asyncio.Lock()
 
@@ -89,7 +89,7 @@ class FamaSofaClient:
 
         # Clean up any stale client
         self._client = None
-        self._target_char = None
+        self._target_chars = []
 
         last_error: Exception | None = None
         for attempt in range(1, MAX_CONNECT_RETRIES + 1):
@@ -117,15 +117,15 @@ class FamaSofaClient:
                 await client.connect()
                 self._client = client
 
-                # Resolve the correct FFE1 characteristic on service FFE0.
-                # The device advertises duplicate FFE0 services, so we need
-                # to find the characteristic explicitly.
-                self._target_char = self._find_characteristic(client)
+                # Resolve all FFE1 characteristics on FFE0 services.
+                # The device advertises duplicate FFE0 services — each may
+                # control a different motor, so we write to all of them.
+                self._target_chars = self._find_all_characteristics(client)
 
                 _LOGGER.info(
-                    "Connected to %s (char handle=%s)",
+                    "Connected to %s (char handles=%s)",
                     self._address,
-                    self._target_char.handle if self._target_char else "UUID-fallback",
+                    [c.handle for c in self._target_chars] if self._target_chars else "UUID-fallback",
                 )
                 return client
 
@@ -144,14 +144,16 @@ class FamaSofaClient:
             f"Failed to connect to {self._address} after {MAX_CONNECT_RETRIES} attempts: {last_error}"
         )
 
-    def _find_characteristic(
+    def _find_all_characteristics(
         self, client: BleakClient
-    ) -> BleakGATTCharacteristic | None:
-        """Find the FFE1 characteristic on the FFE0 service.
+    ) -> list[BleakGATTCharacteristic]:
+        """Find all writable FFE1 characteristics across FFE0 services.
 
-        Handles devices with duplicate FFE0 services by returning the first
-        FFE1 characteristic that supports write.
+        The device advertises duplicate FFE0 services, each potentially
+        controlling a different motor.  We collect every writable FFE1 so
+        that commands are delivered to all modules.
         """
+        chars: list[BleakGATTCharacteristic] = []
         for service in client.services:
             if service.uuid == SERVICE_UUID:
                 for char in service.characteristics:
@@ -165,28 +167,29 @@ class FamaSofaClient:
                             char.handle,
                             service.uuid,
                         )
-                        return char
-        _LOGGER.warning(
-            "Could not find FFE1 characteristic on FFE0 service for %s, "
-            "will fall back to UUID-based write",
-            self._address,
-        )
-        return None
+                        chars.append(char)
+        if not chars:
+            _LOGGER.warning(
+                "Could not find FFE1 characteristic on FFE0 service for %s, "
+                "will fall back to UUID-based write",
+                self._address,
+            )
+        return chars
 
     def _on_disconnect(self, client: BleakClient) -> None:
         """Handle BLE disconnection."""
         _LOGGER.warning("Disconnected from %s", self._address)
         self._client = None
-        self._target_char = None
+        self._target_chars = []
 
     async def _send_single_command(self, cmd: int) -> None:
-        """Send a single command frame."""
+        """Send a single command frame to all matching characteristics."""
         client = await self._ensure_connected()
         frame = _build_command(cmd)
 
-        if self._target_char:
-            # Write to the specific characteristic handle (avoids duplicate UUID issues)
-            await client.write_gatt_char(self._target_char, frame, response=True)
+        if self._target_chars:
+            for char in self._target_chars:
+                await client.write_gatt_char(char, frame, response=True)
         else:
             # Fallback to UUID-based write
             await client.write_gatt_char(CHARACTERISTIC_UUID, frame, response=True)
@@ -303,4 +306,4 @@ class FamaSofaClient:
             await self._client.disconnect()
             _LOGGER.debug("Disconnected from %s", self._address)
         self._client = None
-        self._target_char = None
+        self._target_chars = []
