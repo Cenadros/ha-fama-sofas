@@ -8,6 +8,7 @@ import logging
 from bleak import BleakClient
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.exc import BleakError
+from bleak_retry_connector import establish_connection, BleakClientWithServiceCache
 from homeassistant.components.bluetooth import async_ble_device_from_address
 from homeassistant.core import HomeAssistant
 
@@ -25,7 +26,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 CONNECT_TIMEOUT = 15.0
-MAX_CONNECT_RETRIES = 3
+MAX_CONNECT_RETRIES = 4
 
 
 def _build_command(cmd: int) -> bytearray:
@@ -91,58 +92,40 @@ class FamaSofaClient:
         self._client = None
         self._target_chars = []
 
-        last_error: Exception | None = None
-        for attempt in range(1, MAX_CONNECT_RETRIES + 1):
-            try:
-                _LOGGER.debug(
-                    "Connection attempt %d/%d to %s",
-                    attempt,
-                    MAX_CONNECT_RETRIES,
-                    self._address,
-                )
-
-                ble_device = async_ble_device_from_address(
-                    self._hass, self._address, connectable=True
-                )
-                if not ble_device:
-                    raise BleakError(
-                        f"Device {self._address} not found by HA Bluetooth scanner"
-                    )
-
-                client = BleakClient(
-                    ble_device,
-                    timeout=CONNECT_TIMEOUT,
-                    disconnected_callback=self._on_disconnect,
-                )
-                await client.connect()
-                self._client = client
-
-                # Resolve all FFE1 characteristics on FFE0 services.
-                # The device advertises duplicate FFE0 services — each may
-                # control a different motor, so we write to all of them.
-                self._target_chars = self._find_all_characteristics(client)
-
-                _LOGGER.info(
-                    "Connected to %s (char handles=%s)",
-                    self._address,
-                    [c.handle for c in self._target_chars] if self._target_chars else "UUID-fallback",
-                )
-                return client
-
-            except (BleakError, TimeoutError, OSError) as err:
-                last_error = err
-                _LOGGER.warning(
-                    "Connection attempt %d failed for %s: %s",
-                    attempt,
-                    self._address,
-                    err,
-                )
-                if attempt < MAX_CONNECT_RETRIES:
-                    await asyncio.sleep(1.0 * attempt)
-
-        raise BleakError(
-            f"Failed to connect to {self._address} after {MAX_CONNECT_RETRIES} attempts: {last_error}"
+        ble_device = async_ble_device_from_address(
+            self._hass, self._address, connectable=True
         )
+        if not ble_device:
+            raise BleakError(
+                f"Device {self._address} not found by HA Bluetooth scanner"
+            )
+
+        _LOGGER.debug("Connecting to %s via bleak_retry_connector", self._address)
+
+        client = await establish_connection(
+            client_class=BleakClientWithServiceCache,
+            device=ble_device,
+            name=ble_device.name or self._address,
+            disconnected_callback=self._on_disconnect,
+            max_attempts=MAX_CONNECT_RETRIES,
+            ble_device_callback=lambda: async_ble_device_from_address(
+                self._hass, self._address, connectable=True
+            ),
+            timeout=CONNECT_TIMEOUT,
+        )
+        self._client = client
+
+        # Resolve all FFE1 characteristics on FFE0 services.
+        # The device advertises duplicate FFE0 services — each may
+        # control a different motor, so we write to all of them.
+        self._target_chars = self._find_all_characteristics(client)
+
+        _LOGGER.info(
+            "Connected to %s (char handles=%s)",
+            self._address,
+            [c.handle for c in self._target_chars] if self._target_chars else "UUID-fallback",
+        )
+        return client
 
     def _find_all_characteristics(
         self, client: BleakClient
