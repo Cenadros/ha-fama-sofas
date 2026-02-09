@@ -67,7 +67,7 @@ class FamaSofasConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     vol.Optional(
                         CONF_DURATION, default=DEFAULT_DURATION_SEC
-                    ): vol.All(int, vol.Range(min=1, max=120)),
+                    ): vol.All(int, vol.Range(min=1, max=180)),
                 }
             ),
         )
@@ -116,7 +116,7 @@ class FamaSofasConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_ADDRESS): vol.In(device_names),
                     vol.Optional(
                         CONF_DURATION, default=DEFAULT_DURATION_SEC
-                    ): vol.All(int, vol.Range(min=1, max=120)),
+                    ): vol.All(int, vol.Range(min=1, max=180)),
                 }
             ),
         )

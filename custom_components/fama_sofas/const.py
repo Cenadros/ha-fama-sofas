@@ -21,8 +21,8 @@ CMD_STOP = 0x07
 
 # Timing
 COMMAND_INTERVAL_SEC = 0.2  # 200ms between repeated commands
-DEFAULT_DURATION_SEC = 60  # Default press duration in seconds
-MAX_CONTINUOUS_DURATION_SEC = 120  # Safety timeout for gradual control
+DEFAULT_DURATION_SEC = 120  # Default press duration in seconds
+MAX_CONTINUOUS_DURATION_SEC = 180  # Safety timeout for gradual control
 
 # Config
 CONF_DURATION = "command_duration"
